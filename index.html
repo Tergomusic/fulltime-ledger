@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fulltime Ledger — Football Form &amp; Stats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1220;
+    --panel:#121F2C;
+    --panel-2:#182838;
+    --paper:#F3EEE1;
+    --paper-dim:#C9C3B4;
+    --amber:#E8A33D;
+    --amber-dim:#7A5A25;
+    --pitch:#3E6A46;
+    --red:#C1432B;
+    --line: rgba(243,238,225,0.12);
+    --line-strong: rgba(243,238,225,0.22);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Source Sans 3', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  a{color:inherit;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,18,32,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Oswald'; font-weight:600; font-size:19px; letter-spacing:0.03em; }
+  .brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px var(--amber); }
+  .navlinks{ display:flex; gap:28px; font-size:14px; color:var(--paper-dim); }
+  .navlinks a:hover{ color:var(--paper); }
+  .navcta{
+    background:var(--amber); color:var(--ink); font-weight:600; font-size:14px;
+    padding:9px 18px; border-radius:2px; text-decoration:none;
+  }
+  @media (max-width:720px){ .navlinks{display:none;} }
+
+  header.hero{ padding:64px 0 40px; border-bottom:1px solid var(--line); }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono'; font-size:12px; letter-spacing:0.08em;
+    color:var(--amber); border:1px solid var(--amber-dim); padding:5px 12px;
+    text-transform:uppercase;
+  }
+  .eyebrow .live{ width:6px; height:6px; border-radius:50%; background:var(--red); animation:pulse 1.6s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.25;} }
+
+  h1.title{ font-size:56px; line-height:0.98; margin:20px 0 16px; font-weight:600; }
+  h1.title .accent{ color:var(--amber); }
+  .lede{ max-width:520px; color:var(--paper-dim); font-size:17px; margin-bottom:32px; }
+  @media (max-width:720px){ h1.title{ font-size:38px; } }
+
+  .hero-actions{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:48px; }
+  .btn{
+    display:inline-block; padding:14px 26px; border-radius:2px; font-weight:600;
+    font-size:15px; text-decoration:none; border:1px solid transparent; cursor:pointer;
+  }
+  .btn-amber{ background:var(--amber); color:var(--ink); }
+  .btn-amber:hover{ background:#f0b158; }
+  .btn-ghost{ border-color:var(--line-strong); color:var(--paper); background:transparent; }
+  .btn-ghost:hover{ border-color:var(--paper); }
+
+  .board{
+    background:var(--panel); border:1px solid var(--line-strong);
+    padding:28px; display:grid; grid-template-columns:1fr 1fr; gap:24px;
+  }
+  @media (max-width:640px){ .board{ grid-template-columns:1fr; } }
+  .board-col-label{
+    font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:0.1em; color:var(--paper-dim);
+    text-transform:uppercase; margin-bottom:12px;
+  }
+  .flap-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .flap-team{ font-size:14px; width:140px; flex-shrink:0; color:var(--paper-dim); }
+  .flap-digits{ display:flex; gap:4px; }
+  .flap{
+    background:var(--ink); color:var(--paper); font-family:'IBM Plex Mono'; font-weight:600;
+    font-size:20px; width:32px; height:40px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line-strong); border-radius:2px; position:relative; overflow:hidden;
+  }
+  .flap::after{ content:''; position:absolute; left:0; right:0; top:50%; height:1px; background:var(--ink); opacity:0.6; }
+  .flap.flip{ animation:flip 0.5s ease; }
+  @keyframes flip{ 0%{ transform:rotateX(0deg); } 50%{ transform:rotateX(90deg); } 100%{ transform:rotateX(0deg); } }
+
+  .countdown-label{ font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dim); letter-spacing:0.1em; text-transform:uppercase; margin-top:18px; margin-bottom:10px; }
+  .countdown{ display:flex; gap:8px; }
+  .countdown .flap{ width:44px; height:52px; font-size:26px; }
+  .countdown-caption{ font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dim); display:flex; gap:8px; margin-top:6px; }
+  .countdown-caption span{ width:44px; text-align:center; }
+
+  .disclaimer-strip{
+    font-family:'IBM Plex Mono'; font-size:12px; color:var(--paper-dim);
+    border-top:1px solid var(--line); margin-top:36px; padding-top:16px;
+  }
+
+  section{ padding:64px 0; border-bottom:1px solid var(--line); }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:32px; flex-wrap:wrap; gap:10px; }
+  .section-head h2{ font-size:28px; font-weight:600; }
+  .section-head .sub{ font-family:'IBM Plex Mono'; font-size:12px; color:var(--paper-dim); text-transform:uppercase; letter-spacing:0.08em; }
+
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  @media (max-width:820px){ .grid-3{ grid-template-columns:1fr; } }
+  .card{ background:var(--panel); border:1px solid var(--line); padding:22px; }
+  .card-team{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .card-team .name{ font-family:'Oswald'; font-size:16px; font-weight:500; }
+  .form-dots{ display:flex; gap:5px; }
+  .form-dot{ width:22px; height:22px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-size:11px; font-weight:600; }
+  .form-dot.W{ background:var(--pitch); color:var(--paper); }
+  .form-dot.D{ background:var(--panel-2); color:var(--paper-dim); border:1px solid var(--line-strong); }
+  .form-dot.L{ background:var(--red); color:var(--paper); }
+  .card-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; font-family:'IBM Plex Mono'; font-size:13px; color:var(--paper-dim); }
+  .card-stats b{ color:var(--paper); display:block; font-size:15px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  th{ text-align:left; font-family:'IBM Plex Mono'; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--paper-dim); font-weight:500; padding:10px 12px; border-bottom:1px solid var(--line-strong); }
+  td{ padding:12px; border-bottom:1px solid var(--line); font-family:'IBM Plex Mono'; }
+  td.team-cell{ font-family:'Source Sans 3'; }
+  tr:hover td{ background:var(--panel); }
+  .pos{ color:var(--paper-dim); width:24px; }
+  .table-wrap{ overflow-x:auto; }
+
+  .grid-pricing{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  @media (max-width:820px){ .grid-pricing{ grid-template-columns:1fr; } }
+  .plan{ background:var(--panel); border:1px solid var(--line); padding:28px; display:flex; flex-direction:column; }
+  .plan.featured{ border-color:var(--amber); position:relative; }
+  .plan.featured::before{ content:'MOST POPULAR'; position:absolute; top:-1px; right:-1px; background:var(--amber); color:var(--ink); font-family:'IBM Plex Mono'; font-size:10px; padding:5px 10px; letter-spacing:0.06em; }
+  .plan h3{ font-size:15px; font-weight:500; color:var(--paper-dim); margin-bottom:6px; }
+  .plan .price{ font-family:'Oswald'; font-size:38px; font-weight:600; margin-bottom:4px; }
+  .plan .price span{ font-family:'IBM Plex Mono'; font-size:13px; color:var(--paper-dim); }
+  .plan ul{ list-style:none; margin:20px 0 26px; flex-grow:1; }
+  .plan li{ font-size:14px; color:var(--paper-dim); padding:8px 0; border-top:1px solid var(--line); display:flex; gap:8px; }
+  .plan li::before{ content:'—'; color:var(--amber); }
+  .plan .btn{ width:100%; text-align:center; }
+
+  footer{ padding:40px 0 60px; }
+  .footer-grid{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; color:var(--paper-dim); font-size:13px; }
+  .footer-note{ font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dim); margin-top:24px; max-width:640px; line-height:1.7; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>FULLTIME<span style="color:var(--amber)">LEDGER</span></div>
+    <div class="navlinks">
+      <a href="#form">Form Guide</a>
+      <a href="#table">League Table</a>
+      <a href="#pricing">Subscribe</a>
+      <a href="#support">Support</a>
+    </div>
+    <a href="#pricing" class="navcta">Subscribe</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="live"></span>Updated matchday</span>
+    <h1 class="title">Read the form.<br>Not the <span class="accent">hype.</span></h1>
+    <p class="lede">Team form, head-to-head records, and league tables for Ghana Premier League and beyond — laid out like a ledger, not a slot machine. No win-rate promises. Just the numbers, kept straight.</p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn btn-amber">See subscription plans</a>
+      <a href="#form" class="btn btn-ghost">View sample data</a>
+    </div>
+
+    <div class="board">
+      <div>
+        <div class="board-col-label">Last 5 — Goals For / Against</div>
+        <div class="flap-row">
+          <div class="flap-team">Hearts of Oak</div>
+          <div class="flap-digits">
+            <div class="flap">0</div><div class="flap">7</div>
+          </div>
+        </div>
+        <div class="flap-row">
+          <div class="flap-team">Asante Kotoko</div>
+          <div class="flap-digits">
+            <div class="flap">0</div><div class="flap">9</div>
+          </div>
+        </div>
+        <div class="flap-row">
+          <div class="flap-team">Medeama SC</div>
+          <div class="flap-digits">
+            <div class="flap">0</div><div class="flap">6</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="countdown-label">Next fixture kicks off in</div>
+        <div class="countdown">
+          <div class="flap">0</div><div class="flap">2</div>
+          <div class="flap">1</div><div class="flap">4</div>
+          <div class="flap">0</div><div class="flap">5</div>
+        </div>
+        <div class="countdown-caption"><span>DAYS</span><span>HRS</span><span>MIN</span></div>
+      </div>
+    </div>
+
+    <div class="disclaimer-strip">
+      Sample data shown for layout purposes — connect to a live fixtures/stats feed before launch. This board displays historical form, not predictions or win probabilities.
+    </div>
+  </div>
+</header>
+
+<section id="form">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>This week's form</h2>
+      <span class="sub">Last 5 league matches</span>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-team">
+          <span class="name">Hearts of Oak</span>
+          <div class="form-dots">
+            <div class="form-dot W">W</div><div class="form-dot W">W</div><div class="form-dot D">D</div><div class="form-dot L">L</div><div class="form-dot W">W</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div>Goals for<b>9</b></div>
+          <div>Goals against<b>4</b></div>
+          <div>Clean sheets<b>2</b></div>
+          <div>Avg. possession<b>54%</b></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-team">
+          <span class="name">Asante Kotoko</span>
+          <div class="form-dots">
+            <div class="form-dot W">W</div><div class="form-dot D">D</div><div class="form-dot W">W</div><div class="form-dot W">W</div><div class="form-dot L">L</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div>Goals for<b>11</b></div>
+          <div>Goals against<b>6</b></div>
+          <div>Clean sheets<b>1</b></div>
+          <div>Avg. possession<b>58%</b></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-team">
+          <span class="name">Medeama SC</span>
+          <div class="form-dots">
+            <div class="form-dot L">L</div><div class="form-dot W">W</div><div class="form-dot W">W</div><div class="form-dot D">D</div><div class="form-dot W">W</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div>Goals for<b>8</b></div>
+          <div>Goals against<b>5</b></div>
+          <div>Clean sheets<b>2</b></div>
+          <div>Avg. possession<b>49%</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="table">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>League table</h2>
+      <span class="sub">Ghana Premier League — sample</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="pos">1</td><td class="team-cell">Asante Kotoko</td><td>18</td><td>12</td><td>4</td><td>2</td><td>+21</td><td>40</td></tr>
+          <tr><td class="pos">2</td><td class="team-cell">Hearts of Oak</td><td>18</td><td>11</td><td>4</td><td>3</td><td>+15</td><td>37</td></tr>
+          <tr><td class="pos">3</td><td class="team-cell">Medeama SC</td><td>18</td><td>10</td><td>5</td><td>3</td><td>+12</td><td>35</td></tr>
+          <tr><td class="pos">4</td><td class="team-cell">Bechem United</td><td>18</td><td>9</td><td>6</td><td>3</td><td>+9</td><td>33</td></tr>
+          <tr><td class="pos">5</td><td class="team-cell">Aduana Stars</td><td>18</td><td>8</td><td>6</td><td>4</td><td>+6</td><td>30</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Subscribe</h2>
+      <span class="sub">Cancel anytime</span>
+    </div>
+    <div class="grid-pricing">
+      <div class="plan">
+        <h3>Matchday</h3>
+        <div class="price">GHS 15<span>/week</span></div>
+        <ul>
+          <li>Form guide for 2 leagues</li>
+          <li>Head-to-head records</li>
+          <li>League tables, updated daily</li>
+        </ul>
+        <button class="btn btn-ghost" onclick="handleSubscribe('Matchday')">Subscribe</button>
+      </div>
+      <div class="plan featured">
+        <h3>Full Season</h3>
+        <div class="price">GHS 45<span>/month</span></div>
+        <ul>
+          <li>All leagues covered</li>
+          <li>Form guide + xG &amp; shot data</li>
+          <li>Head-to-head, injury &amp; suspension notes</li>
+          <li>Weekly analysis digest</li>
+        </ul>
+        <button class="btn btn-amber" onclick="handleSubscribe('Full Season')">Subscribe</button>
+      </div>
+      <div class="plan">
+        <h3>Analyst</h3>
+        <div class="price">GHS 120<span>/month</span></div>
+        <ul>
+          <li>Everything in Full Season</li>
+          <li>Downloadable data (CSV)</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="btn btn-ghost" onclick="handleSubscribe('Analyst')">Subscribe</button>
+      </div>
+    </div>
+    <p id="subscribe-note" class="footer-note" style="margin-top:24px;"></p>
+  </div>
+</section>
+
+<footer id="support">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:10px;">FULLTIME<span style="color:var(--amber)">LEDGER</span></div>
+        <p>Football form and stats, kept honest.</p>
+      </div>
+      <div>
+        <div style="color:var(--paper); margin-bottom:8px; font-family:'IBM Plex Mono'; font-size:12px; text-transform:uppercase;">Support</div>
+        <p>support@fulltimeledger.com</p>
+        <p>Live chat — bottom right</p>
+      </div>
+    </div>
+    <p class="footer-note">
+      Fulltime Ledger publishes historical statistics and form data for informational purposes only. We do not guarantee outcomes, win rates, or returns. Football results are inherently uncertain. This is not betting or financial advice.
+    </p>
+  </div>
+</footer>
+
+<script>
+  // Placeholder subscribe handler.
+  // TODO: replace with real Paystack (or Hubtel) checkout once your merchant
+  // account is approved. Typical flow:
+  //   1. Include Paystack Inline JS: https://js.paystack.co/v1/inline.js
+  //   2. On click, call PaystackPop.setup({ key: 'pk_live_xxx', email, amount, plan, callback... })
+  //   3. Verify the transaction server-side with your secret key before granting access.
+  // Do NOT hardcode a personal bank/MoMo number into client-side code as a
+  // "payment destination" — use the payment provider's checkout, which settles
+  // to your registered merchant account automatically.
+  function handleSubscribe(planName){
+    const note = document.getElementById('subscribe-note');
+    note.textContent = `"${planName}" plan selected — payments open soon. We'll email you the moment checkout is live.`;
+  }
+
+  const flaps = document.querySelectorAll('.board .flap');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        flaps.forEach((f,i)=>{
+          setTimeout(()=> f.classList.add('flip'), i*60);
+        });
+        obs.disconnect();
+      }
+    });
+  }, {threshold:0.4});
+  obs.observe(document.querySelector('.board'));
+</script>
+
+</body>
+</html>
